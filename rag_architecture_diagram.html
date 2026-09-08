@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RAG Architecture - Mind Power Artists</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #f8fafc;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --phase1-color: #8b5cf6;
+            --phase1-bg: #f3e8ff;
+            --phase2-color: #10b981;
+            --phase2-bg: #d1fae5;
+            --phase3-color: #f59e0b;
+            --phase3-bg: #fef3c7;
+            --border-radius: 12px;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            margin: 0;
+            padding: 40px 20px;
+            line-height: 1.5;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 50px;
+            animation: fadeInDown 0.8s ease-out;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            color: #4c1d95;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            color: var(--text-muted);
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        .architecture-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 30px;
+            margin-bottom: 50px;
+        }
+
+        .phase-card {
+            background: white;
+            border-radius: 20px;
+            padding: 30px 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            border-top: 6px solid;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            opacity: 0;
+            animation: fadeInUp 0.8s ease-out forwards;
+        }
+
+        .phase-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+        }
+
+        .phase-card:nth-child(1) { border-color: var(--phase1-color); animation-delay: 0.1s; }
+        .phase-card:nth-child(2) { border-color: var(--phase2-color); animation-delay: 0.3s; }
+        .phase-card:nth-child(3) { border-color: var(--phase3-color); animation-delay: 0.5s; }
+
+        .phase-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 2px dashed #e2e8f0;
+        }
+        
+        .phase-card:nth-child(1) .phase-title { color: var(--phase1-color); }
+        .phase-card:nth-child(2) .phase-title { color: var(--phase2-color); }
+        .phase-card:nth-child(3) .phase-title { color: var(--phase3-color); }
+
+        .step-node {
+            background: white;
+            border: 2px solid #e2e8f0;
+            border-radius: var(--border-radius);
+            padding: 15px;
+            text-align: center;
+            margin-bottom: 10px;
+            position: relative;
+            transition: all 0.2s;
+        }
+
+        .step-node:hover {
+            border-color: #cbd5e1;
+            transform: scale(1.02);
+        }
+
+        .step-title { font-weight: 600; margin-bottom: 5px; font-size: 1rem; }
+        .step-desc { font-size: 0.85rem; color: var(--text-muted); }
+
+        .arrow {
+            text-align: center;
+            color: #94a3b8;
+            font-size: 1.5rem;
+            margin: 5px 0 15px 0;
+            animation: float 2s infinite ease-in-out;
+        }
+
+        .pill-container { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; margin-bottom: 10px;}
+        .pill { padding: 6px 12px; border-radius: 20px; font-size: 0.85rem; font-weight: 500; border: 1px solid #e2e8f0;}
+        
+        .code-block {
+            background: #1e293b;
+            color: #34d399;
+            font-family: monospace;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            margin-bottom: 10px;
+        }
+
+        /* Specific node styles based on images */
+        .solid-bg-purple { background: var(--phase1-color); color: white; border: none; }
+        .solid-bg-purple .step-desc { color: #ddd; }
+        
+        .solid-bg-green { background: #059669; color: white; border: none; }
+        .solid-bg-green .step-desc { color: #d1fae5; }
+        
+        .bg-yellow { background: #fef08a; border-color: #fde047; }
+        .outline-red { border-color: #fca5a5; }
+        .outline-green { border-color: #6ee7b7; }
+        .outline-teal { border-color: #5eead4; }
+        .outline-yellow { border-color: #fde047; }
+        .outline-purple { border-color: #c4b5fd; background: #faf5ff; }
+
+        .bottom-section {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 20px;
+            opacity: 0;
+            animation: fadeInUp 0.8s ease-out 0.7s forwards;
+        }
+
+        .info-card {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        }
+
+        .info-card h3 { color: #4c1d95; margin-top: 0; display: flex; align-items: center; gap: 10px;}
+        
+        .tech-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 20px;
+        }
+
+        .tech-item h4 { margin: 0 0 5px 0; font-size: 0.75rem; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px;}
+        .tech-item p { margin: 0; font-weight: 600; font-size: 1.1rem;}
+
+        .check-list { list-style: none; padding: 0; margin: 0; }
+        .check-list li { display: flex; align-items: center; gap: 10px; margin-bottom: 15px; font-weight: 500;}
+        .check-list li::before { content: '✓'; color: #10b981; font-weight: bold; }
+
+        .footer {
+            text-align: center;
+            margin-top: 50px;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            animation: fadeIn 1s ease-out 1s forwards;
+            opacity: 0;
+        }
+
+        /* Animations */
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fadeIn {
+            to { opacity: 1; }
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(5px); }
+        }
+
+        @media (max-width: 768px) {
+            .bottom-section { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <h1>Mind Power Artists — RAG Chatbot Architecture</h1>
+        <p>Retrieval-Augmented Generation: How website content becomes grounded, hallucination-free answers</p>
+    </div>
+
+    <div class="architecture-grid">
+        <!-- PHASE 1 -->
+        <div class="phase-card">
+            <div class="phase-title">
+                <span style="background: var(--phase1-color); color: white; padding: 2px 10px; border-radius: 8px;">1</span> 
+                Document Ingestion Phase
+            </div>
+
+            <div class="pill-container">
+                <div class="pill">📄 Website Pages</div>
+                <div class="pill">❓ FAQs</div>
+                <div class="pill">💳 Policies</div>
+            </div>
+            <div class="arrow">↓</div>
+
+            <div class="step-node">
+                <div class="step-title">Content Extraction</div>
+                <div class="step-desc">Scrape mindpowerartists.com — services, courses, contact info</div>
+            </div>
+            <div class="arrow">↓</div>
+
+            <div class="pill-container">
+                <div class="pill" style="color: var(--phase1-color); border-color: var(--phase1-color); background: var(--phase1-bg);">Entry 1</div>
+                <div class="pill" style="color: var(--phase1-color); border-color: var(--phase1-color); background: var(--phase1-bg);">Entry 2</div>
+                <div class="pill" style="color: var(--phase1-color); border-color: var(--phase1-color); background: var(--phase1-bg);">... 36</div>
+            </div>
+            <div class="arrow">↓</div>
+
+            <div class="step-node">
+                <div class="step-title">TF-IDF Vectorizer</div>
+                <div class="step-desc">Tokenize → compute IDF → build sparse vectors</div>
+            </div>
+            <div class="arrow">↓</div>
+
+            <div class="code-block">[0.23, 0.0, 0.45, 0.67, ...]</div>
+            <div class="arrow">↓</div>
+
+            <div class="step-node solid-bg-purple">
+                <div class="step-title">🗄️ Indexed Knowledge Base</div>
+                <div class="step-desc">36 vectors · JSON · in-memory</div>
+            </div>
+        </div>
+
+        <!-- PHASE 2 -->
+        <div class="phase-card">
+            <div class="phase-title">
+                <span style="background: var(--phase2-color); color: white; padding: 2px 10px; border-radius: 8px;">2</span> 
+                Query Processing Phase
+            </div>
+
+            <div class="step-node bg-yellow">
+                <div class="step-title" style="color: #ca8a04; font-size: 0.85rem;">USER QUERY</div>
+                <div class="step-title">"What is Aura Cleansing?"</div>
+            </div>
+            <div class="arrow" style="color: var(--phase2-color);">↓</div>
+
+            <div class="step-node">
+                <div class="step-title">Query → Vector</div>
+                <div class="step-desc">Same tokenizer + IDF applied to the question</div>
+            </div>
+            <div class="arrow" style="color: var(--phase2-color);">↓</div>
+
+            <div style="text-align: center; color: var(--phase2-color); font-family: monospace; font-size: 0.85rem; margin-bottom: 10px;">
+                [0.31, 0.0, 0.22, ...]
+            </div>
+
+            <div class="step-node">
+                <div class="step-title">🔍 Similarity Search</div>
+                <div class="step-desc">Cosine similarity vs all 36 entries · Top-3 above 0.15 threshold</div>
+            </div>
+            <div class="arrow" style="color: var(--phase2-color);">↓</div>
+
+            <div class="pill-container">
+                <div class="pill" style="background: #a7f3d0; border-color: #059669; color: #065f46;">Match 1 · 40%</div>
+                <div class="pill" style="background: #d1fae5; border-color: #10b981; color: #065f46;">Match 2 · 22%</div>
+                <div class="pill" style="background: #d1fae5; border-color: #10b981; color: #065f46;">Match 3 · 18%</div>
+            </div>
+            <div class="arrow" style="color: var(--phase2-color);">↓</div>
+
+            <div class="step-node outline-purple">
+                <div class="step-title" style="color: var(--phase1-color);">Augmented Context</div>
+                <div class="step-desc" style="font-style: italic;">Retrieved entries + grounding instruction → prompt</div>
+            </div>
+        </div>
+
+        <!-- PHASE 3 -->
+        <div class="phase-card">
+            <div class="phase-title">
+                <span style="background: var(--phase3-color); color: white; padding: 2px 10px; border-radius: 8px;">3</span> 
+                Generation Phase
+            </div>
+
+            <div class="step-node solid-bg-green">
+                <div class="step-title">🤖 Large Language Model</div>
+                <div class="step-desc">Groq (Llama 3.1) or Google Gemini</div>
+            </div>
+            <div class="arrow" style="color: var(--phase3-color);">↓</div>
+
+            <div class="step-node outline-red" style="background: #fef2f2;">
+                <div class="step-title" style="color: #b91c1c;">Grounding Guardrail</div>
+                <div class="step-desc">"Answer ONLY from context. If no match → refuse + give contact"</div>
+            </div>
+            <div class="arrow" style="color: var(--phase3-color);">↓</div>
+
+            <div class="step-node outline-green">
+                <div class="step-title" style="color: #059669;">✨ Generated Response</div>
+                <div class="step-desc">"Aura Cleansing removes negative energies and blockages from your aura, restoring positive energy flow through deep healing therapy..."</div>
+            </div>
+            <div class="arrow" style="color: var(--phase3-color);">↓</div>
+
+            <div class="step-node outline-teal">
+                <div class="step-title" style="color: #0f766e;">Answer + Source Chips</div>
+                <div class="step-desc">Shown to user with category + confidence attribution</div>
+            </div>
+            <div class="arrow" style="color: var(--phase3-color);">↺</div>
+
+            <div class="step-node outline-yellow" style="background: #fefce8;">
+                <div class="step-title" style="color: #a16207;">Feedback Loop</div>
+                <div class="step-desc">Admin adds entries · Unanswered questions logged</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- BOTTOM SECTION -->
+    <div class="bottom-section">
+        <div class="info-card">
+            <h3>⚙️ Technology Stack</h3>
+            <div class="tech-grid">
+                <div class="tech-item">
+                    <h4>Frontend</h4>
+                    <p>Streamlit</p>
+                </div>
+                <div class="tech-item">
+                    <h4>Language</h4>
+                    <p>Python 3</p>
+                </div>
+                <div class="tech-item">
+                    <h4>Retrieval</h4>
+                    <p>TF-IDF + Cosine</p>
+                </div>
+                <div class="tech-item">
+                    <h4>Knowledge Store</h4>
+                    <p>JSON (36 entries)</p>
+                </div>
+                <div class="tech-item">
+                    <h4>LLM Model</h4>
+                    <p>Llama 3.1 8B</p>
+                </div>
+                <div class="tech-item">
+                    <h4>API Key</h4>
+                    <p>Free tier</p>
+                </div>
+                <div class="tech-item">
+                    <h4>Dependencies</h4>
+                    <p>2 (lightweight)</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="info-card" style="background: #f0fdf4;">
+            <h3 style="color: #059669;">✓ Why RAG?</h3>
+            <ul class="check-list">
+                <li>Answers grounded in real content</li>
+                <li>No hallucinations — refuses if unsure</li>
+                <li>Always current — update without retraining</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="footer">
+        Built by <strong>Fatima Fayyaz</strong> &bull; RAG = Retrieval-Augmented Generation &bull; Retrieval finds the facts, the LLM phrases the answer
+    </div>
+</div>
+
+<script>
+    // Simple hover effects already handled by CSS
+    // Reveal animations handled by CSS keyframes
+</script>
+</body>
+</html>
